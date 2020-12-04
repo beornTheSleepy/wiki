@@ -2,10 +2,10 @@
 
 {% block body %}
 
-<h2>{{errorRequest}} does not exist, would you like to create a page for <a href= "{% url 'new_entry' title=Q"> {{errorRequest}}</a>?</h2>
-<form method='post' action=".">
+<h2>{{errorRequest}} does not exist, would you like to create a page for {{errorRequest}}?</h2>
+<form action= "{% url 'new_entry' %}"  method="POST">
     {% csrf_token %}
-    {{form}}
+    {{NewEntryForm.as_p}}
     <button type='submit'>Send</button>
 </form>
 {% endblock %}

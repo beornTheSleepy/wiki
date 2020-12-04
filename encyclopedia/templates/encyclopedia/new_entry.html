@@ -6,6 +6,7 @@
 
 {% block body %}
     <h1>Add New Entry to the Encyclopedia</h1>
+    <br>
     <form action="{% url 'new_entry' %}" method="post">
         {% csrf_token %}
         {{NewEntryForm.as_p}}

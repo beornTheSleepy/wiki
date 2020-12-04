@@ -34,39 +34,33 @@ def title(request, title):
         })
 
 def search(request, *args, **kwargs):
-    matchList=[] 
     allentries = util.list_entries()
     if request.method == 'POST':
-        data = SearchForm(request.POST)
-        print("this is all entries", allentries)
-        print("this is the data", data)
+        query = SearchForm(request.POST)
         ###if data != None:
-        if data.is_valid():
-            ##print(query)
-            Q = data.cleaned_data["query"]
+        if query.is_valid():
+            print(query)
+            Q = query.cleaned_data["query"]
             for i in allentries:
                 if i.lower() == Q.lower():                      
-                    """result = util.get_entry(Q)
-                    torender = markdowner.convert(result)
-                    return render(request, "encyclopedia/title.html", {
-                        'torender': torender,
-                        'title': Q,
-                        'form': SearchForm()
-                        }) """### old code for review ###
-                    return title(request, Q)
+                    return redirect('title', title=Q)
+
+            matchList = list(filter(lambda x: Q.lower() in x.lower(), allentries))    
+            if len(matchList) > 0:
+                return render(request, "encyclopedia/partial_results.html", {
+                    "results": matchList,
+                    "form": SearchForm()  
+                })                
+
             else:
-                matchList = list(filter(lambda x: Q.lower() in x.lower(), allentries)) 
-                if len(matchList) > 0:
-                    return render(request, "encyclopedia/partial_results.html", {
-                        "results": matchList,
-                        "form": SearchForm()  
-                    })
-                else:
-                    print("we eneded up here somehow")
-                    return render(request, "encyclopedia/not_found.html", {
-                        'form': SearchForm(),
-                        'errorRequest': Q
-                    })
+                return render(request, "encyclopedia/not_found.html", {
+                    'NewEntryForm': NewEntryForm(initial={"title": Q}),
+                    'form': SearchForm(),
+                    'errorRequest': Q
+                })
+
+        else:
+            print("it's not valid")                           
 
 def new_entry(request, *args, **kwargs):
     if request.method=="POST":
@@ -82,12 +76,11 @@ def new_entry(request, *args, **kwargs):
                 return redirect('title', title=title)
 
     else:
-        Q=title
         return render(request, "encyclopedia/new_entry.html", {
-            "title": Q,
             "form": SearchForm(),
             "NewEntryForm": NewEntryForm()
             })
+
 
 def edit_content(request, title):
     if request.method=='GET':
