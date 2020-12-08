@@ -37,9 +37,7 @@ def search(request, *args, **kwargs):
     allentries = util.list_entries()
     if request.method == 'POST':
         query = SearchForm(request.POST)
-        ###if data != None:
         if query.is_valid():
-            print(query)
             Q = query.cleaned_data["query"]
             for i in allentries:
                 if i.lower() == Q.lower():                      
@@ -53,14 +51,12 @@ def search(request, *args, **kwargs):
                 })                
 
             else:
-                return render(request, "encyclopedia/not_found.html", {
+                return render(request, "encyclopedia/error.html", {
+                    'message': 'does not exists, would you like to create an entry?',
                     'NewEntryForm': NewEntryForm(initial={"title": Q}),
                     'form': SearchForm(),
                     'errorRequest': Q
-                })
-
-        else:
-            print("it's not valid")                           
+                })                         
 
 def new_entry(request, *args, **kwargs):
     if request.method=="POST":
@@ -70,10 +66,15 @@ def new_entry(request, *args, **kwargs):
             title=data.cleaned_data['title']
             content=data.cleaned_data['content']
             if util.get_entry(title) != None:
-                return index(request)
+                return render(request, "encyclopedia/error.html", {
+                    'message': 'page already exixts',
+                    'form': SearchForm(),
+                    'errorRequest': title
+                })
             else:
                 util.save_entry(title, content)
                 return redirect('title', title=title)
+
 
     else:
         return render(request, "encyclopedia/new_entry.html", {
@@ -97,7 +98,6 @@ def edit_content(request, title):
         if data.is_valid():
             content=data.cleaned_data["content"]
             util.save_entry(title, content)
-            print("this is the title as it is", title)
             return redirect('title', title=title)
 
 def random_page(request):

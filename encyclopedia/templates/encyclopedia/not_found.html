@@ -2,7 +2,7 @@
 
 {% block body %}
 
-<h2>{{errorRequest}} does not exist, would you like to create a page for {{errorRequest}}?</h2>
+<h2>{{errorRequest}} does not exist, would you like to create a page for <a href= "{% url 'new_entry' title=errorRequest %}"></h2>
 <form action= "{% url 'new_entry' %}"  method="POST">
     {% csrf_token %}
     {{NewEntryForm.as_p}}
